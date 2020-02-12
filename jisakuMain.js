@@ -50,7 +50,7 @@ function Puck(x, y) {
 			count = 2;
 		}
 
-		// drawScoreBounce off left wall
+		// Bounce off left wall
 		if (self.x - self.radius < 0) {
 			self.vel.x *= -1;
 			self.x = self.radius;
