@@ -2,8 +2,8 @@ var canvas;
 var context;
 var lastTime;
 
-var boardWidth = 1840;
-var boardHeight = 960;
+var boardWidth = 1640;
+var boardHeight = 860;
 var puck;
 var paddle1;
 var paddle2;
@@ -15,13 +15,17 @@ var BoardDirection = {
 	Right: 1
 };
 
+var counter = 0;
+var count = 0;
+
 function Puck(x, y) {
 	var self = this;
 
 	self.radius = 10;
 	self.x = x;
 	self.y = y;
-	self.speed = 1;
+	self.speed = 0.5;
+	// self.speed = 1;
 	// self.speed = 100;
 	self.vel = {
 		x: 0.2,
@@ -43,6 +47,8 @@ function Puck(x, y) {
 				score1 ++;
 				self.reset(BoardDirection.Right);
 			}
+
+			count = 2;
 		}
 
 		// Bounce off left wall
@@ -54,34 +60,60 @@ function Puck(x, y) {
 				score2 ++;
 				self.reset(BoardDirection.Left);
 			}
+
+			count = 4;
 		}
 
 		// Bounce off bottom wall
 		if (self.y + self.radius > boardHeight) {
 			self.vel.y *= -1;
 			self.y = boardHeight - self.radius;
+
+			count = 1;
 		}
 
 		// Bounce off top wall
 		if (self.y - self.radius < 0) {
 			self. vel.y *= -1;
 			self.y = self.radius;
+
+			count = 4;
 		}
 	}
 
-	self.draw = function (context) {
-		var fillColor = "white";
+	self.drawPuck = function (context) {
+		/* var fillColor = "white";
 
 		if (self.closestPointOnPaddle(paddle1) || self.closestPointOnPaddle(paddle2)) {
 			fillColor = "red";
-		}
+		} */
 
-		context.fillStyle = "fillColor";
+		if (count == 0) {
+			context.fillStyle = "white";
+		} else {
+			if (count == 1) {
+			context.fillStyle = "orange";
+			// context.fillStyle = "black"; // 消える魔球
+				console.log(count);
+			} else if (count = 2) {
+			context.fillStyle = "yellow";
+			// context.fillStyle = "black"; // 消える魔球
+				console.log(count);
+			} else if (count == 3) {
+			context.fillStyle = "white";
+				console.log(count);
+			} else if (count == 4) {
+			context.fillStyle = "pink";
+				console.log(count);
+			} else {
+				context.fillStyle= "white";
+			};
+		}
+		// context.fillStyle = "fillColor";
 		context.beginPath();
 		context.arc(self.x, self.y, self.radius, 0, 2 * Math.PI);
 		context.fill();
 	};
-
 
 	self.reset = function (boardDirection) {
 		self.x = boardWidth / 2;
@@ -213,8 +245,19 @@ function Paddle(x, upKeyCode, downKeyCode) {
 		}
 	};
 
-	self.draw = function (context) {
-		context.fillStyle = "white";
+	self.drawPaddle1 = function (context) {
+		context.fillStyle = "blue";
+
+		context.fillRect(
+			self.x - self.halfWidth,
+			self.y - self.halfHeight,
+			self.halfWidth * 2,
+			self.halfHeight * 2
+		);
+	};
+
+	self.drawPaddle2 = function (context) {
+		context.fillStyle = "red";
 
 		context.fillRect(
 			self.x - self.halfWidth,
@@ -255,7 +298,8 @@ function init () {
 	canvas.width = boardWidth;
 	canvas.height = boardHeight;
 
-	puck = new Puck(100, 100);
+	// puck = new Puck(100, 100);
+	puck = new Puck(820, 430);
 	paddle1 = new Paddle(10, 87, 83);
 	paddle2 = new Paddle(boardWidth - 10, 38, 40);
 
@@ -297,6 +341,7 @@ function resetGame() {
 }
 
 function update (dt) {
+	counter += 1;
 	puck.update(dt);
 	paddle1.update(dt);
 	paddle2.update(dt);
@@ -308,6 +353,7 @@ function update (dt) {
 function drawScore(context, score, boardDirection) {
 	var score = String(score);
 	context.font = "80px Sans";
+	context.fillStyle = "white";
 	var width = context.measureText(score).width;
 	var centerOffset = 240;
 
@@ -327,9 +373,9 @@ function drawCenteredText(context, text, y) {
 
 function render (dt) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	puck.draw(context);
-	paddle1.draw(context);
-	paddle2.draw(context);
+	puck.drawPuck(context);
+	paddle1.drawPaddle1(context);
+	paddle2.drawPaddle2(context);
 
 	drawScore(context, score1, BoardDirection.Left);
 	drawScore(context, score2, BoardDirection.Right);
